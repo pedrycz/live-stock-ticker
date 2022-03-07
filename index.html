@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head/>
+<body style="background-color: #1e1e1e; font-family: Inter, -apple-system, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif;">
+<table id="tickers" style="height:90%; width:90%; position:absolute; top:5%; bottom:5%; left:5%; right:5%;">
+</table>
+<script>
+function getPrices() {
+  return fetch("https://cors.eu.org/https://query1.finance.yahoo.com/v6/finance/quote" + window.location.search)
+    .then(res => res.json()).then(out => out.quoteResponse.result.map(v => [v.shortName, v.regularMarketChange >= 0,
+      Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v.regularMarketPrice)]));
+}
+getPrices().then(prices => prices.reverse().forEach(v => {
+    row = document.getElementById("tickers").insertRow(0);
+    cell1 = row.insertCell(0);
+    cell2 = row.insertCell(1);
+    cell1.innerHTML = v[0];
+    cell2.innerHTML = (v[1] ? "▲" : "▼") + " " + v[2];
+	cell1.style = "text-align:left; font-size: 5vw; font-weight: 600; color: #d4d6cb";
+	cell2.style = "text-align:right; font-size: 5vw; font-weight: 500; color:" + (v[1] ? "#9fd55d": "#e5804c");
+  })).then(setInterval(() => getPrices().then(prices => prices.forEach((v, i) => {
+    cell = document.getElementById("tickers").getElementsByTagName("tr")[i].getElementsByTagName("td")[1];
+	cell.innerHTML = (v[1] ? "▲" : "▼") + " " + v[2];
+    cell.style = "text-align:right; font-size: 5vw; font-weight: 500; color:" + (v[1] ? "#9fd55d": "#e5804c");
+  })), 30000));
+</script>
+</body>
+</html>
